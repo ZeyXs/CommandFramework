@@ -4,8 +4,3 @@ main: fr.zeyx.commandframework.CommandFramework
 api-version: '1.21'
 authors: [ ZeyX_ ]
 description: Library using annotations to easily create Minecraft commands for plugins.
-commands:
-  heal:
-    description: "Heal un joueur"
-  murder_mystery:
-    description: "balablalabl"

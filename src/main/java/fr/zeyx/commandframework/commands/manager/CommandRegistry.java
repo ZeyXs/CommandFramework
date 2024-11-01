@@ -1,13 +1,17 @@
 package fr.zeyx.commandframework.commands.manager;
 
+import fr.zeyx.commandframework.CommandFramework;
 import fr.zeyx.commandframework.annotations.Command;
 import fr.zeyx.commandframework.annotations.DefaultCommand;
 import fr.zeyx.commandframework.annotations.DefaultSubCommand;
 import fr.zeyx.commandframework.annotations.SubCommand;
+import fr.zeyx.commandframework.utils.CommandMapUtil;
 import fr.zeyx.commandframework.utils.PackageScanner;
+import org.bukkit.command.CommandMap;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CommandRegistry {
@@ -15,12 +19,36 @@ public class CommandRegistry {
     private final Map<String, CommandData> commands = new HashMap<>();
 
     public void registerCommandsInPackage(String packageName) {
+        CommandMap commandMap = CommandMapUtil.getCommandMap();
+
+        if (commandMap == null) {
+            CommandFramework.getInstance().getLogger().warning("Can't access command map from Bukkit.");
+            CommandFramework.getInstance().getLogger().warning("Commands from '" + packageName + "' can't be registered.");
+            return;
+        }
+
         try {
             for (Class<?> commandClass : PackageScanner.getClassesInPackage(packageName)) {
+                registerCommand(commandMap, commandClass);
                 registerCommandClass(commandClass, null);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void registerCommand(CommandMap commandMap, Class<?> commandClass) {
+        if (commandClass.isAnnotationPresent(Command.class)) {
+            Command commandAnnotation = commandClass.getAnnotation(Command.class);
+            String commandName = commandAnnotation.value();
+
+            DynamicCommand dynamicCommand = new DynamicCommand(commandName, new CommandExecutor(this));
+            dynamicCommand.setAliases(List.of(commandAnnotation.aliases()));
+            dynamicCommand.setDescription(commandAnnotation.description());
+            dynamicCommand.setPermission(commandAnnotation.permission());
+            dynamicCommand.setUsage(commandAnnotation.usage());
+
+            commandMap.register(CommandFramework.getInstance().getName(), dynamicCommand);
         }
     }
 

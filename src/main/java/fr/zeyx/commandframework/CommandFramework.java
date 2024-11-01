@@ -15,9 +15,6 @@ public final class CommandFramework extends JavaPlugin {
 
         registry = new CommandRegistry();
         registry.registerCommandsInPackage("fr.zeyx.commandframework.commands");
-
-        getCommand("heal").setExecutor(new CommandExecutor(registry));
-        getCommand("murder_mystery").setExecutor(new CommandExecutor(registry));
     }
 
     public static CommandFramework getInstance() {

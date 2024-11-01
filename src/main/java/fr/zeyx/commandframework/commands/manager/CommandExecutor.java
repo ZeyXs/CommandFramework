@@ -83,7 +83,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
 
             // TODO: Si sous classe pas static alors on le tej
 
-            method.setAccessible(true);
+                method.setAccessible(true);
             method.invoke(method.getDeclaringClass().getConstructor().newInstance(), methodArgs.toArray());
         } catch (Exception exception) {
             exception.printStackTrace();
