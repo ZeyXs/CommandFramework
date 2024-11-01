@@ -10,6 +10,7 @@ import fr.zeyx.commandframework.utils.PackageScanner;
 import org.bukkit.command.CommandMap;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +44,11 @@ public class CommandRegistry {
             String commandName = commandAnnotation.value();
 
             DynamicCommand dynamicCommand = new DynamicCommand(commandName, new CommandExecutor(this));
-            dynamicCommand.setAliases(List.of(commandAnnotation.aliases()));
-            dynamicCommand.setDescription(commandAnnotation.description());
-            dynamicCommand.setPermission(commandAnnotation.permission());
-            dynamicCommand.setUsage(commandAnnotation.usage());
+            if (!commandAnnotation.description().isEmpty()) dynamicCommand.setDescription(commandAnnotation.description());
+            else throw new IllegalArgumentException("The description of a command must be defined.");
+            if (commandAnnotation.aliases() != null) dynamicCommand.setAliases(List.of(commandAnnotation.aliases()));
+            if (!commandAnnotation.permission().isEmpty()) dynamicCommand.setPermission(commandAnnotation.permission());
+            if (!commandAnnotation.usage().isEmpty()) dynamicCommand.setUsage(commandAnnotation.usage());
 
             commandMap.register(CommandFramework.getInstance().getName(), dynamicCommand);
         }
@@ -57,6 +59,10 @@ public class CommandRegistry {
             CommandData commandData;
             String commandName;
 
+            if (commandClass.isMemberClass() && !Modifier.isStatic(commandClass.getModifiers())) {
+                throw new IllegalStateException("The inner class " + commandClass.getName() + " must be static.");
+            }
+
             if (commandClass.isAnnotationPresent(Command.class)) { // si c'est une classe @Command
                 Command commandAnnotation = commandClass.getAnnotation(Command.class);
                 commandName = commandAnnotation.value();
@@ -65,7 +71,7 @@ public class CommandRegistry {
                 if (parentData == null) {
                     commands.put(commandName, commandData);
                 } else {
-                    // on rentre jamais dans ce cas
+                    // on rentre jamais dans ce cas??
                     parentData.addSubCommandData(commandName, commandData);
                 }
             } else { // si c'est une sous commande

@@ -72,7 +72,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                     if (i < args.length) {
                         methodArgs.add(convertArg(args[i], params[i + 1].getType()));
                     } else if (paramAnnotation.optional()) {
-                        methodArgs.add(null); // si optionnel est pas fournis, alors null
+                        methodArgs.add(null);
                     } else {
                         // TODO: rendre ça configurable pour le dev
                         sender.sendMessage("Missing parameters: " + paramAnnotation.value());
@@ -81,9 +81,7 @@ public class CommandExecutor implements org.bukkit.command.CommandExecutor {
                 }
             }
 
-            // TODO: Si sous classe pas static alors on le tej
-
-                method.setAccessible(true);
+            method.setAccessible(true);
             method.invoke(method.getDeclaringClass().getConstructor().newInstance(), methodArgs.toArray());
         } catch (Exception exception) {
             exception.printStackTrace();

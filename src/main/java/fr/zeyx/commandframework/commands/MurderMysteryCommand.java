@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 
 @Command(
         value = "murder_mystery",
+        description = "Murder Mystery admin command",
         aliases = {"mm", "murdermystery"},
         permission = "murder.admin",
         usage = "/murder_mystery <help|role>"
@@ -17,7 +18,7 @@ public class MurderMysteryCommand {
     }
 
     @SubCommand("role")
-    public static class RoleCommand {
+    public class RoleCommand {
 
         @SubCommand("set")
         public void setRole(
