@@ -30,6 +30,9 @@ public class CommandRegistry {
 
         try {
             for (Class<?> commandClass : PackageScanner.getClassesInPackage(packageName)) {
+                if (commandClass.isMemberClass() && !Modifier.isStatic(commandClass.getModifiers())) {
+                    throw new IllegalStateException("The inner class " + commandClass.getName() + " must be static.");
+                }
                 registerCommand(commandMap, commandClass);
                 registerCommandClass(commandClass, null);
             }
@@ -58,10 +61,6 @@ public class CommandRegistry {
         if (commandClass.isAnnotationPresent(Command.class) || commandClass.isAnnotationPresent(SubCommand.class)) {
             CommandData commandData;
             String commandName;
-
-            if (commandClass.isMemberClass() && !Modifier.isStatic(commandClass.getModifiers())) {
-                throw new IllegalStateException("The inner class " + commandClass.getName() + " must be static.");
-            }
 
             if (commandClass.isAnnotationPresent(Command.class)) { // si c'est une classe @Command
                 Command commandAnnotation = commandClass.getAnnotation(Command.class);
